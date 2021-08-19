@@ -1,5 +1,8 @@
 {
     "discord": {
         "token": ""
+    },
+    "mongodb": {
+        "url": ""
     }
 }
