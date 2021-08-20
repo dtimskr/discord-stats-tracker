@@ -29,7 +29,7 @@ client.on("message", async (message) => {
     MongoClient.connect(config.mongodb.url, function(err, db) {
         if (err) throw err;
 
-        let dbo = db.db("bbigfx93mdsnuiu");
+        let dbo = db.db(config.mongodb.db);
         
         //Sprawdzanie czy istnieje collection dla danego serwera
         dbo.listCollections({name: message.guild.id})
