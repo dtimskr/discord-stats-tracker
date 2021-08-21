@@ -1,3 +1,4 @@
+//verison 0.1 beta
 const { Client, Intents, UserFlags } = require('discord.js');
 
 const convertToMinutes = require('./functions/time-convert.js');
