@@ -1,7 +1,9 @@
 {
+    "_comment1": "Discord token here",
     "discord": {
         "token": ""
     },
+    "_comment2": "MongoDB settings here",
     "mongodb": {
         "url": "",
         "db": ""
