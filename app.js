@@ -1,19 +1,21 @@
 //verison 0.1 beta
 const { Client, Intents, UserFlags } = require('discord.js');
-
-const convertToMinutes = require('./functions/time-convert.js');
-const addVoiceRecord = require('./db/actions/addVoiceRecord.js');
-const addMessageRecord = require('./db/actions/addMessageRecord.js');
+const { MongoClient } = require('mongodb');
 
 const config = require("./config.json");
+const addMessageRecord = require('./db/actions/addMessageRecord');
+const addVoiceRecord = require('./db/actions/addVoiceRecord');
 
 function convertToMinutes(millis) {
     var minutes = Math.floor(millis / 60000);
     return minutes;
 }
 
-
-const db = require('./db/mongo.js');
+function printProgress(progress){
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    process.stdout.write(progress + 's');
+}
 
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.DIRECT_MESSAGES]
@@ -27,7 +29,7 @@ client.on("message", async (message) => {
     let guildId = message.guild.id;
     let userId = message.member.id;
 
-    console.log(`adding to statistic record (user: ${message.member.id} | guild: ${message.guild.name} (${message.guild.id})`);
+    console.log(`adding to statistic record (user: ${message.member.id} | guild: ${message.guild.name} (${message.guild.id})`)
     addMessageRecord(guildId, userId);
 })
 
@@ -42,7 +44,6 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     if (!oldState.channel) {
         voiceStates[member.id] = new Date();
         console.log(`${member.user.tag} | ${guild.name} (${guild.id}) | joined to ${newChannel.name} (${newChannel.id}))`);
-
     //Użytkownik opuścił kanał
     } else if (!newState.channel) {
         let now = new Date();
@@ -60,9 +61,8 @@ client.on('voiceStateUpdate', (oldState, newState) => {
             //TODO
             // 1. Wysłanie +1 do całkowitej ilości minut na serwerze
             // 2. Wysłanie +1 do indywidualnych statystyk użytkownika
-
-            addVoiceRecord(guild.id, member, minutes);
             console.log(`${member.user.tag} | ${guild.name} (${guild.id}) | disconnected | time: ${convertToMinutes(dateDiff)}`);
+            addVoiceRecord(guild.id, member.id, minutes);
         }
     }
 })

@@ -1,56 +1,43 @@
-const mongoose = require('mongoose');
+const { MongoClient } = require('mongodb');
+const config = require('./../../config.json');
 
-function addMessageRecord(guildId, userInfo) {
-    mongoose.connection.db.listCollections({name: guildId})
-        .next(function (err, collinfo) {
-            if (err) console.log(err);
-            if (collinfo) {
-                console.log(collinfo);
-                mongoose.connection.db.collection(guildId, function (err, collection) {
-                    collection.findOneAndUpdate({ user_id: userInfo.id}, {
-                        $inc: {
-                            total_messages: 1
-                        }
-                    }, {upsert: true}, function (err, doc) {
+function addMessageRecord(guildId, userId) {
+    MongoClient.connect(config.mongodb.url, function(err, db) {
+        if (err) console.log(err);
+        let dbo = db.db("discord-tracker");
+        
+        dbo.listCollections({ name: guildId })
+            .next(function (err, collinfo ) {
+                if (err) console.log(err);
+                if (!collinfo) {
+                    dbo.createCollection(guildId, function (err, res) {
                         if (err) console.log(err);
-                        console.log(doc);
-                    })
-                    collection.findOneAndUpdate({ serviceRecord: true }, {
+                        res.findOneAndUpdate({ user_id: userId }, {
+                            $inc: {
+                                total_user_messages: 1
+                            }
+                        }, {upsert: true});
+
+                        res.findOneAndUpdate({ serviceRecord: true }, {
+                            $inc: {
+                                total_server_messages: 1
+                            }
+                        }, {upsert: true});
+                    });
+                } else {
+                    dbo.collection(guildId).findOneAndUpdate({ user_id: userId }, {
+                        $inc: {
+                            total_user_messages: 1
+                        }
+                    }, {upsert: true});
+                    dbo.collection(guildId).findOneAndUpdate({ serviceRecord: true }, {
                         $inc: {
                             total_server_messages: 1
                         }
-                    }, {upsert: true}, function (err, doc) {
-                        if (err) console.log(err);
-                        console.log(doc);
-                    })
-                });
-
-            } else {
-                mongoose.connection.db.createCollection({name: guildId})
-                    .then(function (err, collection) {
-                        if (err) console.log(err);
-                        collection(guildId, function (err, coll) {
-                            if (err) console.log(err);
-                            coll.findOneAndUpdate({ user_id: userInfo.id}, {
-                                $inc: {
-                                    total_messages: 1
-                                }
-                            }, {upsert: true}, function (err, doc) {
-                                if (err) console.log(err);
-                                console.log(doc);
-                            })
-                            coll.findOneAndUpdate({ serviceRecord: true }, {
-                                $inc: {
-                                    total_server_messages: 1
-                                }
-                            }, {upsert: true}, function (err, doc) {
-                                if (err) console.log(err);
-                                console.log(doc);
-                            })
-                        });
-                    });
-            }
-        });
+                    }, {upsert: true});
+                }
+            });
+    })
 }
 
 module.exports = addMessageRecord;
