@@ -4,7 +4,7 @@ const config = require('./../../config.json');
 function addVoiceRecord(guildId, userId, time) {
     MongoClient.connect(config.mongodb.url, function(err, db) {
         if (err) console.log(err);
-        let dbo = db.db("discord-tracker");
+        let dbo = db.db(config.mongodb.db);
         
         dbo.listCollections({ name: guildId })
             .next(function (err, collinfo ) {

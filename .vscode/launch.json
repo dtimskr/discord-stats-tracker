@@ -7,12 +7,13 @@
         {
             "type": "pwa-node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "Run normally",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/app.js",
-            "console":"externalTerminal"
+            "console": "externalTerminal"
+
         }
     ]
 }

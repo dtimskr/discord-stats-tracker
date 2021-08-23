@@ -1,11 +1,15 @@
 {
-    "_comment1": "Discord token here",
+    "_comment1": "Discord settings",
     "discord": {
         "token": ""
     },
-    "_comment2": "MongoDB settings here",
+    "_comment2": "MongoDB settingss",
     "mongodb": {
         "url": "",
         "db": ""
+    },
+    "_comment3": "Sentry.io settings",
+    "sentry": {
+        "dsn": ""
     }
 }
