@@ -1,30 +1,52 @@
 //verison 0.1 beta
 const { Client, Intents, MessageEmbed } = require('discord.js');
 const { MongoClient } = require('mongodb');
+const { createLogger, format, transports } = require('winston');
 
 const config = require("./config.json");
 const addMessageRecord = require('./db/actions/addMessageRecord');
 const addVoiceRecord = require('./db/actions/addVoiceRecord');
 const getTop10Guild = require('./db/actions/getTop10Guild');
 
+
+const logger = createLogger({
+    format: format.combine(
+        format.splat(),
+        format.simple()
+      ),
+    transports: [new transports.Console()]
+})
+
+function arraySort(array) {
+    return array.sort(function(a, b) {return parseFloat(b.total_user_messages) - parseFloat(a.total_user_messages);});
+}
+
+function checkUserTag(userId, callback) {
+    let thanos = client.users.fetch(userId);
+    thanos.then(function (result) {
+        callback(result.tag);
+    });
+}
+
 function convertToMinutes(millis) {
     var minutes = Math.floor(millis / 60000);
     return minutes;
 }
 
-function printProgress(progress){
-    process.stdout.clearLine();
-    process.stdout.cursorTo(0);
-    process.stdout.write(progress + 's');
-}
-
 // Test connection to database
 MongoClient.connect(config.mongodb.url, function(err, db) {
     if (err)  {
-        return console.log("MongoDB connection error: " + err);
+        return logger.log('error', `MongoDB connection error`, {
+            "err": err
+        });
     }
-    console.log(`MongoDB connection test passed!`);
-    db.close();
+    db.db().command({'isMaster': 1}, function(err, result) {
+        if (err) console.log(err);
+        logger.log('info', `MongoDB connected succesfully`, {
+            "hosts": result.hosts
+        });
+        db.close();
+    });
 })
 
 const client = new Client({
@@ -32,7 +54,9 @@ const client = new Client({
 })
 
 client.once("ready", async () => {
-    console.log(client.user.tag + " | ready");
+    logger.log('info', "Discord connected succesfully", {
+        "bot_tag": client.user.tag
+    })
 });
 
 client.on("messageCreate", (message) => {
@@ -40,9 +64,40 @@ client.on("messageCreate", (message) => {
     let guildId = message.guild.id;
     let userId = message.member.id;
 
-    // console.log(`adding to statistic record (user: ${message.member.id} | guild: ${message.guild.name} (${message.guild.id})`)
-    addMessageRecord(guildId, userId)
-})
+    let newData = [];
+    let statsMessage = "Top 10 users\n";
+
+    if (message.content === "fire top10") {
+        getTop10Guild(guildId, (result) => {
+            result.forEach(i => {
+                checkUserTag(i.user_id, function(userData) {
+                    let newObj = {
+                        user_id: i.user_id,
+                        user_tag: userData,
+                        total_user_messages: i.total_user_messages
+                    }
+                    newData.push(newObj);
+
+                    if (newData.length === result.length) {
+                        let finallyCounter = 0;
+                        let sortedData = arraySort(newData);
+
+                        sortedData.forEach(i => {
+                            statsMessage = statsMessage + `${i.user_tag} - ${i.total_user_messages} messages\n`;
+                            finallyCounter = finallyCounter + 1;
+
+                            if (sortedData.length === finallyCounter) {
+                                return message.channel.send(statsMessage)
+                            }
+                        })
+                    };
+                });
+            })
+        });
+    }
+
+    addMessageRecord(guildId, userId);
+});
 
 let voiceStates = [];
 
@@ -54,7 +109,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     //Użytkownik dołączył do kanału
     if (!oldState.channel) {
         voiceStates[member.id] = new Date();
-        console.log(`${member.user.tag} | ${guild.name} (${guild.id}) | joined to ${newChannel.name} (${newChannel.id}))`);
+        
     //Użytkownik opuścił kanał
     } else if (!newState.channel) {
         let now = new Date();
@@ -74,4 +129,4 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     }
 })
 
-client.login(config.discord.token)
+client.login(config.discord.token);
