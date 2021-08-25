@@ -1,21 +1,20 @@
 //verison 0.1 beta
 const { Client, Intents, MessageEmbed } = require('discord.js');
-const { MongoClient } = require('mongodb');
-const { createLogger, format, transports } = require('winston');
 
+// Config
 const config = require("./config.json");
+
+// Utils
+const convertToMinutes = require('./utils/convertToMinutes');
+
+// MongoDB
+const { MongoClient } = require('mongodb');
 const addMessageRecord = require('./db/actions/addMessageRecord');
 const addVoiceRecord = require('./db/actions/addVoiceRecord');
 const getTop10Guild = require('./db/actions/getTop10Guild');
 
-
-const logger = createLogger({
-    format: format.combine(
-        format.splat(),
-        format.simple()
-      ),
-    transports: [new transports.Console()]
-})
+// Winston
+const logger = require('./log/logger.js');
 
 function arraySort(array) {
     return array.sort(function(a, b) {return parseFloat(b.total_user_messages) - parseFloat(a.total_user_messages);});
@@ -26,11 +25,6 @@ function checkUserTag(userId, callback) {
     thanos.then(function (result) {
         callback(result.tag);
     });
-}
-
-function convertToMinutes(millis) {
-    var minutes = Math.floor(millis / 60000);
-    return minutes;
 }
 
 // Test connection to database
@@ -65,7 +59,11 @@ client.on("messageCreate", (message) => {
     let userId = message.member.id;
 
     let newData = [];
-    let statsMessage = "Top 10 users\n";
+    let statsMessage = "";
+
+    if (!message.content.startsWith('fire')) {
+        addMessageRecord(guildId, userId);
+    }
 
     if (message.content === "fire top10") {
         getTop10Guild(guildId, (result) => {
@@ -87,7 +85,12 @@ client.on("messageCreate", (message) => {
                             finallyCounter = finallyCounter + 1;
 
                             if (sortedData.length === finallyCounter) {
-                                return message.channel.send(statsMessage)
+                                console.log(statsMessage);
+                                const stats = new MessageEmbed()
+                                    .setTitle('Top 10 User')
+                                    .setDescription(statsMessage)
+                                    .setFooter('discord-stats-tracker');
+                                message.channel.send({embeds: [stats]});
                             }
                         })
                     };
@@ -95,8 +98,6 @@ client.on("messageCreate", (message) => {
             })
         });
     }
-
-    addMessageRecord(guildId, userId);
 });
 
 let voiceStates = [];
