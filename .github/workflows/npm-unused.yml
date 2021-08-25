@@ -1,0 +1,9 @@
+name: npm unused packages checker
+  # You may pin to the exact commit or the version.
+  # uses: Amr-Reda/npm-unused-packages-checker@c9f775873d975ce3d39279d984d144a1e9198fef
+  uses: dtimskr/discord-stats-tracker
+  with:
+    # list of Glob patterns for paths to ignore
+    IGNORE_PATTERNS: # optional, default is 
+    # list of packages that exist in package.json and not used in the code to ignore and mark them as used
+    IGNORE_PACKAGES: # optional, default is 
