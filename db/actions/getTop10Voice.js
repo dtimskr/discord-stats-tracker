@@ -1,27 +1,27 @@
 const { MongoClient } = require('mongodb');
-const logger = require('../../log/logger');
 const config = require("./../../config.json");
+const logger = require("../../log/logger");
 
-function getTop10Guild(guildId, callback) {
+function getTop10Voice(guildId, callback) {
     let sortedData;
     MongoClient.connect(config.mongodb.url, function (err, db) {
-        if (err) return logger.log('error', 'getTop10GuildMessages: MongoDB connection error', {guildId: guildId, error: err});
-        let dbo = db.db("discord-tracker");
-        let sort = { total_user_messages: -1};
+        if (err) return logger.log('error', 'getTop10Voice: MongoDB connection error', {guildId: guildId, error: err});
+        let dbo = db.db(config.mongodb.db);
+        let sort = { total_user_voice_minutes: -1};
         let response = [];
         dbo.collection(guildId).find({}).sort(sort).toArray(function(err, data) {
-            if (err) console.log(err);
+            if (err) logger.log('error', 'getTop10Voice: MongoDB collection find/sort error', {error: err});
             // console.log(data);
             if (data.length < 10) {
                 sortedData = data.slice(0, data.length).filter(i => i.serviceRecord === undefined);
                 sortedData.forEach(i => {
                     let obj = {
                         user_id: i.user_id,
-                        total_user_messages: i.total_user_messages
+                        total_user_voice_minutes: i.total_user_voice_minutes
                     }
                     response.push(obj);
                 });
-                logger.log('info', 'getTop10Guild: sending response', {res: response});
+                logger.log('info', 'getTop10Voice: sending response', {res: response});
                 callback(response);
                 db.close();
             } else {
@@ -29,10 +29,11 @@ function getTop10Guild(guildId, callback) {
                 sortedData.forEach(i => {
                     let obj = {
                         user_id: i.user_id,
-                        total_user_messages: i.total_user_messages
+                        top_user_voice_minutes: i.total_user_voice_minutes
                     }
                     response.push(obj);
                 });
+                logger.log('info', 'getTop10Voice: sending response', {res: response});
                 callback(response);
                 db.close()
             }
@@ -40,4 +41,4 @@ function getTop10Guild(guildId, callback) {
     });
 }
 
-module.exports = getTop10Guild;
+module.exports = getTop10Voice;

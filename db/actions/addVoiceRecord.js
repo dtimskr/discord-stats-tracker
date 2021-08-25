@@ -17,16 +17,16 @@ function addVoiceRecord(guildId, userId, time) {
                             $inc: {
                                 total_user_voice_minutes: time
                             }
-                        }, {upsert: true}).then(() => {
-                            logger.log('info', 'addVoiceRecord: user record updated succesfully', {guildId: guildId, userId: userId});
+                        }, {upsert: true}).then((value) => {
+                            logger.log('info', 'addVoiceRecord: user record updated successfully', {guildId: guildId, userId: userId, value: value.value._id});
                         });
 
                         res.findOneAndUpdate({ serviceRecord: true }, {
                             $inc: {
                                 total_server_voice_minutes: time
                             }
-                        }, {upsert: true}).then(() => {
-                            logger.log('info', 'addVoiceRecord: guild record updated succesfully', {guildId: guildId, userId: userId});
+                        }, {upsert: true}).then((value) => {
+                            logger.log('info', 'addVoiceRecord: guild record updated successfully', {guildId: guildId, userId: userId, value: value.value._id});
                         })
                     });
                 } else {
@@ -34,15 +34,15 @@ function addVoiceRecord(guildId, userId, time) {
                         $inc: {
                             total_user_voice_minutes: time
                         }
-                    }, {upsert: true}).then(() => {
-                        logger.log('info', 'addVoiceRecord: user record updated succesfully', {guildId: guildId, userId: userId});
+                    }, {upsert: true}).then((value) => {
+                        logger.log('info', 'addVoiceRecord: user record updated successfully', {guildId: guildId, userId: userId, value: value.value._id});
                     });
                     dbo.collection(guildId).findOneAndUpdate({ serviceRecord: true }, {
                         $inc: {
                             total_server_voice_minutes: time
                         }
-                    }, {upsert: true}).then(() => {
-                        logger.log('info', 'addVoiceRecord: guild record updated succesfully', {guildId: guildId, userId: userId});
+                    }, {upsert: true}).then((value) => {
+                        logger.log('info', 'addVoiceRecord: guild record updated succesfully', {guildId: guildId, userId: userId, value: value.value._id});
                     })
                 }
             });

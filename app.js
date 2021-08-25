@@ -11,7 +11,8 @@ const convertToMinutes = require('./utils/convertToMinutes');
 const { MongoClient } = require('mongodb');
 const addMessageRecord = require('./db/actions/addMessageRecord');
 const addVoiceRecord = require('./db/actions/addVoiceRecord');
-const getTop10Guild = require('./db/actions/getTop10Guild');
+const getTop10Messages = require('./db/actions/getTop10Messages');
+const getTop10Voice = require('./db/actions/getTop10Voice');
 
 // Winston
 const logger = require('./log/logger.js');
@@ -65,8 +66,8 @@ client.on("messageCreate", (message) => {
         addMessageRecord(guildId, userId);
     }
 
-    if (message.content === "fire top10") {
-        getTop10Guild(guildId, (result) => {
+    if (message.content === "fire top10messages") {
+        getTop10Messages(guildId, (result) => {
             result.forEach(i => {
                 checkUserTag(i.user_id, function(userData) {
                     let newObj = {
@@ -87,13 +88,49 @@ client.on("messageCreate", (message) => {
                             if (sortedData.length === finallyCounter) {
                                 console.log(statsMessage);
                                 const stats = new MessageEmbed()
-                                    .setTitle('Top 10 User')
+                                    .setTitle('Top 10 User in Messages')
                                     .setDescription(statsMessage)
                                     .setFooter('discord-stats-tracker');
                                 message.channel.send({embeds: [stats]});
                             }
                         })
-                    };
+                    }
+                });
+            })
+        });
+    }
+
+    if (message.content === "fire top10voice") {
+        getTop10Voice(guildId, (result) => {
+            result.forEach(i => {
+                checkUserTag(i.user_id, function (userData) {
+                    let newObj = {
+                        user_id: i.user_id,
+                        user_tag: userData,
+                        total_user_voice_minutes: i.total_user_voice_minutes
+                    }
+                    newData.push(newObj);
+
+                    if (newData.length === result.length) {
+                        let finallyCounter = 0;
+                        let sortedData = arraySort(newData);
+
+                        sortedData.forEach(i => {
+                            if (typeof i.total_user_voice_minutes !== 'undefined' && i.total_user_voice_minutes !== null){
+                                statsMessage = statsMessage + `${i.user_tag} - ${i.total_user_voice_minutes} minutes\n`;
+                                finallyCounter = finallyCounter + 1;
+                            }
+                            finallyCounter = finallyCounter + 1;
+
+                            if (sortedData.length === finallyCounter) {
+                                const stats = new MessageEmbed()
+                                    .setTitle('Top 10 User on Voice')
+                                    .setDescription(statsMessage)
+                                    .setFooter('discord-stats-tracker');
+                                message.channel.send({embeds: [stats]});
+                            }
+                        })
+                    }
                 });
             })
         });
@@ -105,8 +142,7 @@ let voiceStates = [];
 client.on('voiceStateUpdate', (oldState, newState) => {
     //ID usera, serwer i dane użytkownika
     let { guild, member } = oldState;
-    let newChannel = newState.channel;
-    
+
     //Użytkownik dołączył do kanału
     if (!oldState.channel) {
         voiceStates[member.id] = new Date();
@@ -122,10 +158,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
         let roundedMinutes = Math.round(minutes);
         //Jeżeli czas jest większy od minuty DO STH..
         if (roundedMinutes >= 1) {
-            console.log(`${member.user.tag} | ${guild.name} (${guild.id}) | disconnected | time: ${roundedMinutes}`);
-            addVoiceRecord(guild.id, member.id, roundedMinutes).then(() => {
-                console.log(`fire | added voice record to user ${member.id} (guild: ${guild.id})`)
-            })
+            addVoiceRecord(guild.id, member.id, roundedMinutes);
         }
     }
 })
