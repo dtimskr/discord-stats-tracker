@@ -1,6 +1,0 @@
-- uses: dtimskr/discord-stats-tracker
-- name: packages check
-  uses: Amr-Reda/npm-unused-packages-checker@v1
-  with:
-    IGNORE_PACKAGES:  '["jade"]'
-    IGNORE_PATHS:  '["/test"]'
