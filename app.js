@@ -13,8 +13,6 @@ const convertToMinutes = require('./utils/convertToMinutes');
 const { MongoClient } = require('mongodb');
 const addMessageRecord = require('./db/actions/addMessageRecord');
 const addVoiceRecord = require('./db/actions/addVoiceRecord');
-const getTop10Messages = require('./db/actions/getTop10Messages');
-const getTop10Voice = require('./db/actions/getTop10Voice');
 
 // Winston
 const logger = require('./log/logger.js');

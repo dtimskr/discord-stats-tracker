@@ -3,6 +3,7 @@ config.json
 test.js
 .vscode
 notes.txt
+.env
 
 # Created by https://www.toptal.com/developers/gitignore/api/webstorm
 # Edit at https://www.toptal.com/developers/gitignore?templates=webstorm
