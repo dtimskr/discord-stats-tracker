@@ -1,8 +1,10 @@
 //verison 0.1 beta
+const fs = require('fs');
+const path = require('path');
 const { Client, Intents, MessageEmbed } = require('discord.js');
 
 // Config
-const config = require("./config.json");
+require('dotenv').config();
 
 // Utils
 const convertToMinutes = require('./utils/convertToMinutes');
@@ -17,6 +19,16 @@ const getTop10Voice = require('./db/actions/getTop10Voice');
 // Winston
 const logger = require('./log/logger.js');
 
+// Commands framework
+const commandsFilenames = fs.readdirSync(path.join(__dirname, 'commands'));
+const commands = [];
+
+for(const commandFilename of commandsFilenames) {
+    const command = require(path.join(__dirname, 'commands', commandFilename));
+    commands.push(command);
+}
+
+
 function arraySort(array) {
     return array.sort(function(a, b) {return parseFloat(b.total_user_messages) - parseFloat(a.total_user_messages);});
 }
@@ -29,7 +41,7 @@ function checkUserTag(userId, callback) {
 }
 
 // Test connection to database
-MongoClient.connect(config.mongodb.url, function(err, db) {
+MongoClient.connect(process.env.MONGODB_URL, function(err, db) {
     if (err)  {
         return logger.log('error', `MongoDB connection error`, {
             "err": err
@@ -44,6 +56,7 @@ MongoClient.connect(config.mongodb.url, function(err, db) {
     });
 })
 
+// Discord.JS client settings
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.DIRECT_MESSAGES]
 })
@@ -51,7 +64,7 @@ const client = new Client({
 client.once("ready", async () => {
     logger.log('info', "Discord connected succesfully", {
         "bot_tag": client.user.tag
-    })
+    });
 });
 
 client.on("messageCreate", (message) => {
@@ -59,81 +72,33 @@ client.on("messageCreate", (message) => {
     let guildId = message.guild.id;
     let userId = message.member.id;
 
-    let newData = [];
-    let statsMessage = "";
-
-    if (!message.content.startsWith('fire')) {
+    if (!message.content.startsWith(process.env.DISCORD_PREFIX)) {
         addMessageRecord(guildId, userId);
     }
+});
 
-    if (message.content === "fire top10messages") {
-        getTop10Messages(guildId, (result) => {
-            result.forEach(i => {
-                checkUserTag(i.user_id, function(userData) {
-                    let newObj = {
-                        user_id: i.user_id,
-                        user_tag: userData,
-                        total_user_messages: i.total_user_messages
-                    }
-                    newData.push(newObj);
+client.on("messageCreate", (message) => {
+    if (message.author.bot) return;
 
-                    if (newData.length === result.length) {
-                        let finallyCounter = 0;
-                        let sortedData = arraySort(newData);
+    const prefix = process.env.DISCORD_PREFIX;
+    const args = message.content.toLowerCase().trim().split(/\s+/);
+    const command = commands.find(command => prefix + command.info.command === args[0] || (command.info.aliases ? command.info.aliases.find(alias => prefix + alias === args[0]) : false));
 
-                        sortedData.forEach(i => {
-                            statsMessage = statsMessage + `${i.user_tag} - ${i.total_user_messages} messages\n`;
-                            finallyCounter = finallyCounter + 1;
+    if (command) {
+        const parameters = {
+            args,
+            command,
+            message,
+            prefix,
+            client
+        }
 
-                            if (sortedData.length === finallyCounter) {
-                                console.log(statsMessage);
-                                const stats = new MessageEmbed()
-                                    .setTitle('Top 10 User in Messages')
-                                    .setDescription(statsMessage)
-                                    .setFooter('discord-stats-tracker');
-                                message.channel.send({embeds: [stats]});
-                            }
-                        })
-                    }
-                });
-            })
-        });
-    }
+        command.function(parameters).then(() => {
 
-    if (message.content === "fire top10voice") {
-        getTop10Voice(guildId, (result) => {
-            result.forEach(i => {
-                checkUserTag(i.user_id, function (userData) {
-                    let newObj = {
-                        user_id: i.user_id,
-                        user_tag: userData,
-                        total_user_voice_minutes: i.total_user_voice_minutes
-                    }
-                    newData.push(newObj);
-
-                    if (newData.length === result.length) {
-                        let finallyCounter = 0;
-                        let sortedData = arraySort(newData);
-
-                        sortedData.forEach(i => {
-                            if (typeof i.total_user_voice_minutes !== 'undefined' && i.total_user_voice_minutes !== null){
-                                statsMessage = statsMessage + `${i.user_tag} - ${i.total_user_voice_minutes} minutes\n`;
-                                finallyCounter = finallyCounter + 1;
-                            }
-                            finallyCounter = finallyCounter + 1;
-
-                            if (sortedData.length === finallyCounter) {
-                                const stats = new MessageEmbed()
-                                    .setTitle('Top 10 User on Voice')
-                                    .setDescription(statsMessage)
-                                    .setFooter('discord-stats-tracker');
-                                message.channel.send({embeds: [stats]});
-                            }
-                        })
-                    }
-                });
-            })
-        });
+        }).catch(e => {
+            console.log(e);
+            message.channel.send(e);
+        })
     }
 });
 
@@ -163,4 +128,4 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     }
 })
 
-client.login(config.discord.token);
+client.login(process.env.DISCORD_TOKEN);

@@ -1,11 +1,11 @@
 const { MongoClient } = require('mongodb');
 const logger = require('./../../log/logger.js');
-const config = require('./../../config.json');
+// const config = require('./../../config.json');
 
 function addVoiceRecord(guildId, userId, time) {
-    MongoClient.connect(config.mongodb.url, function(err, db) {
+    MongoClient.connect(process.env.MONGODB_URL, function (err, db) {
         if (err) logger.log('error', 'addVoiceRecord: MongoDB connection error', {error: err});
-        let dbo = db.db(config.mongodb.db);
+        let dbo = db.db(process.env.MONGODB_DB);
         
         dbo.listCollections({ name: guildId })
             .next(function (err, collinfo ) {

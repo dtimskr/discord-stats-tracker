@@ -1,14 +1,16 @@
 const { MongoClient } = require('mongodb');
-const config = require("./../../config.json");
+// const config = require("./../../config.json");
 const logger = require("../../log/logger");
 
 function getTop10Voice(guildId, callback) {
     let sortedData;
-    MongoClient.connect(config.mongodb.url, function (err, db) {
+    MongoClient.connect(process.env.MONGODB_URL, function (err, db) {
         if (err) return logger.log('error', 'getTop10Voice: MongoDB connection error', {guildId: guildId, error: err});
-        let dbo = db.db(config.mongodb.db);
+        let dbo = db.db(process.env.MONGODB_DB);
+
         let sort = { total_user_voice_minutes: -1};
         let response = [];
+
         dbo.collection(guildId).find({}).sort(sort).toArray(function(err, data) {
             if (err) logger.log('error', 'getTop10Voice: MongoDB collection find/sort error', {error: err});
             // console.log(data);

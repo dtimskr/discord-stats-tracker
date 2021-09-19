@@ -1,12 +1,12 @@
 const { MongoClient } = require('mongodb');
 const logger = require('../../log/logger');
-const config = require("./../../config.json");
+// const config = require("./../../config.json");
 
 function getTop10Messages(guildId, callback) {
     let sortedData;
-    MongoClient.connect(config.mongodb.url, function (err, db) {
+    MongoClient.connect(process.env.MONGODB_URL, function (err, db) {
         if (err) return logger.log('error', 'getTop10GuildMessages: MongoDB connection error', {guildId: guildId, error: err});
-        let dbo = db.db("discord-tracker");
+        let dbo = db.db(process.env.MONGODB_DB);
         let sort = { total_user_messages: -1};
         let response = [];
         dbo.collection(guildId).find({}).sort(sort).toArray(function(err, data) {

@@ -2,6 +2,7 @@ node_modules/
 config.json
 test.js
 .vscode
+notes.txt
 
 # Created by https://www.toptal.com/developers/gitignore/api/webstorm
 # Edit at https://www.toptal.com/developers/gitignore?templates=webstorm

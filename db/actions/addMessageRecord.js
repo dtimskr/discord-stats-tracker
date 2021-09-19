@@ -1,15 +1,16 @@
 const { MongoClient } = require('mongodb');
 const logger = require('./../../log/logger.js');
-const config = require('./../../config.json');
+// const config = require('./../../config.json');
+// require('dotenv').config();
 
 /**
  * @param  {string} guildId - Discord guild Id
  * @param  {string} userId - Discord user Id
  */
 function addMessageRecord(guildId, userId) {
-    MongoClient.connect(config.mongodb.url, function (err, db) {
+    MongoClient.connect(process.env.MONGODB_URL, function (err, db) {
         if (err) logger.log('error', 'addMessageRecord: mongoDB connection error}', { error: err });
-        let dbo = db.db(config.mongodb.db);
+        let dbo = db.db(process.env.MONGODB_DB);
 
         dbo.listCollections({ name: guildId })
             .next(function (err, collinfo) {
@@ -24,6 +25,7 @@ function addMessageRecord(guildId, userId) {
                                 total_user_messages: 1
                             }
                         }, { upsert: true }).then((value) => {
+                            console.log(value);
                             logger.log('info', 'addMessageRecord: user record updated',{guildId: guildId, userId: userId, id: value.value._id});
                         });
 
