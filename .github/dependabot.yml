@@ -9,8 +9,4 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
-    ignore-failures:
-      javascript:
-        - fs
-        - path
       
