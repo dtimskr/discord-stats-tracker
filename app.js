@@ -80,7 +80,7 @@ client.on("messageCreate", (message) => {
 
     const prefix = process.env.DISCORD_PREFIX;
     const args = message.content.toLowerCase().trim().split(/\s+/);
-    const command = commands.find(command => prefix + command.info.command === args[0] || (command.info.aliases ? command.info.aliases.find(alias => prefix + alias === args[0]) : false));
+    const command = commands.find(command => prefix + command.info.command === args[0]);
 
     if (command) {
         const parameters = {
@@ -102,6 +102,7 @@ client.on("messageCreate", (message) => {
 
 let voiceStates = [];
 
+// Get voice status
 client.on('voiceStateUpdate', (oldState, newState) => {
     //ID usera, serwer i dane użytkownika
     let { guild, member } = oldState;

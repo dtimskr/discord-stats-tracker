@@ -1,17 +1,25 @@
-# Discord Stats Tracker
+# Discord Stats Tracker BETA
+
+# Features
+- checking top10 on messages and voice chat using `*top10 msg/v`
+- automatically fetching time spend on voice chat and count of messages
+
+# Requirements
+- MongoDB server (you can create free on MongoDB atlas)
+- Discord Bot Api Key
+
+# Usage
+You need set in .env file Discord API token and MongoDB url
 
 # TODO
 ## Basics
-- [x] Working connection with MongoDB, creating new collections and updates records
-- [ ] Command to check your stats on server
-- [x] Command to check Top 10 on server in messages 
-- [x] Command to Top 10 in voice minutes on server
+- [ ] Command to check users stats on server
 ## Back-end
 - [ ] API to get data from MongoDB stats
 ## Front-end
 - [ ] Create Web Panel
 - [ ] OAuth to Web Panel via Discord
 
-# Top 10 Command
-trzeba dopracowac wyglad wiadomosci i jakos prefix ogarnac ale to pozniej
+# rank command
+Here i have a lot of problems, i dont know how to get "rank" from database.
 

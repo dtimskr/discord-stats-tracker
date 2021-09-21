@@ -26,7 +26,7 @@ function addMessageRecord(guildId, userId) {
                             }
                         }, { upsert: true }).then((value) => {
                             console.log(value);
-                            logger.log('info', 'addMessageRecord: user record updated',{guildId: guildId, userId: userId, id: value.value._id});
+                            logger.log('info', 'addMessageRecord: user record updated',{guildId: guildId, userId: userId});
                         });
 
                         res.findOneAndUpdate({ serviceRecord: true }, {
@@ -34,7 +34,7 @@ function addMessageRecord(guildId, userId) {
                                 total_server_messages: 1
                             }
                         }, { upsert: true }).then((value) => {
-                            logger.log('info', 'addMessageRecord: guild record updated', {guildId: guildId, id: value.value._id});
+                            logger.log('info', 'addMessageRecord: guild record updated', {guildId: guildId});
                         })
                     });
                 } else {

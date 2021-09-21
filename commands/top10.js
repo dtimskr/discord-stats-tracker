@@ -53,7 +53,7 @@ exports.function = async (parameters) => {
                         let sortedData = arraySort(newData);
 
                         sortedData.forEach(i => {
-                            statsMessage = statsMessage + `${i.user_tag} - ${i.total_user_messages}`;
+                            statsMessage = statsMessage + `${i.user_tag} - ${i.total_user_messages}\n`;
                             finallyCounter = finallyCounter + 1;
 
                             if (sortedData.length === finallyCounter) {
@@ -84,7 +84,7 @@ exports.function = async (parameters) => {
                         let sortedData = arraySort(newData);
 
                         sortedData.forEach(i => {
-                            statsMessage = statsMessage + `${i.user_tag} - ${i.total_user_voice_minutes}`;
+                            statsMessage = statsMessage + `${i.user_tag} - ${i.total_user_voice_minutes}\n`;
                             finallyCounter = finallyCounter + 1;
 
                             if (sortedData.length === finallyCounter) {
