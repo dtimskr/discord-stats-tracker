@@ -1,4 +1,3 @@
-//verison 0.1 beta
 const fs = require('fs');
 const path = require('path');
 const { Client, Intents } = require('discord.js');
