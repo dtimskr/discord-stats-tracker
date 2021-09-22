@@ -2,8 +2,8 @@
 
 const Discord = require('discord.js');
 
-const getTop10Messages = require('./../db/actions/getTop10Messages');
-const getTop10Voice = require('./../db/actions/getTop10Voice');
+const getTop10Messages = require('./../db/top/getTop10Messages');
+const getTop10Voice = require('./../db/top/getTop10Voice');
 
 function arraySort(array) {
     return array.sort(function(a, b) {return parseFloat(b.total_user_messages) - parseFloat(a.total_user_messages);});
@@ -37,7 +37,6 @@ exports.function = async (parameters) => {
 
     if (args[1] === "messages" || args[1] === "msg") {
         getTop10Messages(message.guild.id, (result) => {
-            console.log(result);
             result.forEach(i => {
                 checkUserTag(message, i.user_id, function (userData) {
                     let newObj = {
@@ -100,6 +99,6 @@ exports.function = async (parameters) => {
             });
         });
     } else {
-        return message.channel.send()
+        return message.channel.send(`usage: ${process.env.DISCORD_PREFIX}top10 <msg/v>`)
     }
 };

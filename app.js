@@ -1,7 +1,7 @@
 //verison 0.1 beta
 const fs = require('fs');
 const path = require('path');
-const { Client, Intents, MessageEmbed } = require('discord.js');
+const { Client, Intents } = require('discord.js');
 
 // Config
 require('dotenv').config();
@@ -11,8 +11,8 @@ const convertToMinutes = require('./utils/convertToMinutes');
 
 // MongoDB
 const { MongoClient } = require('mongodb');
-const addMessageRecord = require('./db/actions/addMessageRecord');
-const addVoiceRecord = require('./db/actions/addVoiceRecord');
+const addMessageRecord = require('./db/record/addMessageRecord');
+const addVoiceRecord = require('./db/record/addVoiceRecord');
 
 // Winston
 const logger = require('./log/logger.js');
@@ -104,14 +104,13 @@ let voiceStates = [];
 
 // Get voice status
 client.on('voiceStateUpdate', (oldState, newState) => {
-    //ID usera, serwer i dane użytkownika
     let { guild, member } = oldState;
 
-    //Użytkownik dołączył do kanału
+    // User joins a voice channel
     if (!oldState.channel) {
         voiceStates[member.id] = new Date();
         
-    //Użytkownik opuścił kanał
+    // User leaves voice channel
     } else if (!newState.channel) {
         let now = new Date();
         let joined = voiceStates[member.id] || new Date();
@@ -120,7 +119,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
         let minutes = convertToMinutes(dateDiff);
 
         let roundedMinutes = Math.round(minutes);
-        //Jeżeli czas jest większy od minuty DO STH..
+        // If time is over 1 minute then count to database ranking
         if (roundedMinutes >= 1) {
             addVoiceRecord(guild.id, member.id, roundedMinutes);
         }
