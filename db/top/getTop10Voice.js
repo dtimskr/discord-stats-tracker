@@ -1,5 +1,4 @@
 const { MongoClient } = require('mongodb');
-// const config = require("./../../config.json");
 const logger = require("../../log/logger");
 
 function getTop10Voice(guildId, callback) {

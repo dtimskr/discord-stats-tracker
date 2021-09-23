@@ -1,7 +1,5 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, MongoDBNamespace } = require('mongodb');
 const logger = require('./../../log/logger.js');
-// const config = require('./../../config.json');
-// require('dotenv').config();
 
 /**
  * @param  {string} guildId - Discord guild Id
@@ -35,6 +33,7 @@ function addMessageRecord(guildId, userId) {
                             }
                         }, { upsert: true }).then((value) => {
                             logger.log('info', 'addMessageRecord: guild record updated', {guildId: guildId});
+                            db.close();
                         })
                     });
                 } else {
@@ -43,7 +42,7 @@ function addMessageRecord(guildId, userId) {
                             total_user_messages: 1
                         }
                     }, { upsert: true }).then((value) => {
-                        logger.log('info', 'addMessageRecord: user record updated',{guildId: guildId, userId: userId, id: value.value._id});
+                        logger.log('info', 'addMessageRecord: user record updated',{guildId: guildId, userId: userId, documentId: value.value._id});
                     });
 
                     dbo.collection(guildId).findOneAndUpdate({ serviceRecord: true }, {
@@ -51,11 +50,12 @@ function addMessageRecord(guildId, userId) {
                             total_server_messages: 1
                         }
                     }, { upsert: true }).then((value) => {
-                        logger.log('info', 'addMessageRecord: guild record updated', {guildId: guildId, id: value.value._id});
+                        logger.log('info', 'addMessageRecord: guild record updated', {guildId: guildId, documentId: value.value._id});
+                        db.close();
                     })
                 }
             });
-    })
+   })
 }
 
 module.exports = addMessageRecord;

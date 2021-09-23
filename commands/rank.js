@@ -109,6 +109,7 @@ exports.function = async (parameters) => {
                     ]
                   };
                 message.channel.send({embeds: [embed]});
+                db.close();
             });
         });
     });

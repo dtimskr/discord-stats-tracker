@@ -1,6 +1,5 @@
 const { MongoClient } = require('mongodb');
 const logger = require('./../../log/logger.js');
-// const config = require('./../../config.json');
 
 function addVoiceRecord(guildId, userId, time) {
     MongoClient.connect(process.env.MONGODB_URL, function (err, db) {
@@ -27,6 +26,7 @@ function addVoiceRecord(guildId, userId, time) {
                             }
                         }, {upsert: true}).then((value) => {
                             logger.log('info', 'addVoiceRecord: guild record updated successfully', {guildId: guildId, userId: userId, value: value.value._id});
+                            db.close();
                         })
                     });
                 } else {
@@ -43,6 +43,7 @@ function addVoiceRecord(guildId, userId, time) {
                         }
                     }, {upsert: true}).then((value) => {
                         logger.log('info', 'addVoiceRecord: guild record updated succesfully', {guildId: guildId, userId: userId, value: value.value._id});
+                        db.close();
                     })
                 }
             });

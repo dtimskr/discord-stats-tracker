@@ -14,9 +14,12 @@ After setting discord bot token and mongodb settings in `.env` file, you can sta
 
 # TODO
 ## Commands
-- [ ] add checking any user rank by mention in `*rank <@user>`
+- [ ] Add checking any user rank by mention in `*rank <@user>`
+- [ ] Add some charts for statistic
 ## Back-end
 - [ ] API to get data from MongoDB stats
+- [ ] Simplify `*top10` to use `collection.aggregate`
+- [ ] Creating automatically guild collection on join
 ## Front-end
 - [ ] Create Web Panel
 - [ ] OAuth to Web Panel via Discord

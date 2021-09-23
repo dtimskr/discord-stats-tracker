@@ -1,6 +1,5 @@
 const { MongoClient } = require('mongodb');
 const logger = require('../../log/logger');
-// const config = require("./../../config.json");
 
 function getTop10Messages(guildId, callback) {
     let sortedData;
