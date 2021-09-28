@@ -1,4 +1,5 @@
-# Discord Stats Tracker BETA
+# Discord Stats Tracker
+Tested on Node v16.9.1
 
 # Features
 - checking top10 on messages and voice chat using `*top10 msg/v`
