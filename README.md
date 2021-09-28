@@ -10,7 +10,7 @@
 - Discord Bot Token
 
 # Usage
-After setting discord bot token and mongodb settings in `.env` file, you can start bot by `npm start` command
+Rename `.env.example` to `.env` file, setup variables to your data and use `npm start` to run bot.
 
 # TODO
 ## Commands
