@@ -103,10 +103,10 @@ client.on('voiceStateUpdate', (oldState, newState) => {
         let dateDiff = now.getTime() - joined.getTime();
         let minutes = Math.floor(dateDiff / 60000);
 
-        let roundedMinutes = Math.round(minutes);
+        let rounded = Math.round(minutes);
         // If time >= 1 add record to database
-        if (roundedMinutes >= 1) {
-            addVoiceRecord(guild.id, member.id, roundedMinutes);
+        if (rounded >= 1) {
+            addVoiceRecord(guild.id, member.id, rounded);
         }
     }
 })
