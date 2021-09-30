@@ -14,14 +14,15 @@ Tested on Node v16.9.1
 Rename `.env.example` to `.env` file, setup variables to your data and use `npm start` to run bot.
 
 # TODO
+## Tracking
+- [ ] Add spam detector
 ## Commands
 - [ ] Add checking any user rank by mention in `*rank <@user>`
 - [ ] Add some charts for statistic
 ## Back-end
-- [ ] API to get data from MongoDB stats
 - [ ] Simplify `*top10` to use `collection.aggregate`
 - [ ] Creating automatically guild collection on join
 ## Front-end
-- [ ] Create Web Panel
+- [ ] Create Web Panel to view stats
 - [ ] OAuth to Web Panel via Discord
 
