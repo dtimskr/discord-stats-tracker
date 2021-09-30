@@ -5,9 +5,6 @@ const { Client, Intents } = require('discord.js');
 // Config
 require('dotenv').config();
 
-// Utils
-const convertToMinutes = require('./utils/convertToMinutes');
-
 // MongoDB
 const { MongoClient } = require('mongodb');
 const addMessageRecord = require('./db/record/addMessageRecord');
@@ -25,21 +22,9 @@ for(const commandFilename of commandsFilenames) {
     commands.push(command);
 }
 
-
-function arraySort(array) {
-    return array.sort(function(a, b) {return parseFloat(b.total_user_messages) - parseFloat(a.total_user_messages);});
-}
-
-function checkUserTag(userId, callback) {
-    let thanos = client.users.fetch(userId);
-    thanos.then(function (result) {
-        callback(result.tag);
-    });
-}
-
 // Test connection to database
 MongoClient.connect(process.env.MONGODB_URL, function(err, db) {
-    if (err)  {
+    if (err) {
         return logger.log('error', `MongoDB connection error`, {
             "err": err
         });
@@ -63,6 +48,7 @@ client.once("ready", async () => {
         "bot_tag": client.user.tag
     });
 });
+
 
 client.on("messageCreate", (message) => {
     if (message.author.bot) return;
@@ -115,14 +101,15 @@ client.on('voiceStateUpdate', (oldState, newState) => {
         let joined = voiceStates[member.id] || new Date();
 
         let dateDiff = now.getTime() - joined.getTime();
-        let minutes = convertToMinutes(dateDiff);
+        let minutes = Math.floor(dateDiff / 60000);
 
         let roundedMinutes = Math.round(minutes);
-        // If time is over 1 minute then count to database ranking
+        // If time >= 1 add record to database
         if (roundedMinutes >= 1) {
             addVoiceRecord(guild.id, member.id, roundedMinutes);
         }
     }
 })
+
 
 client.login(process.env.DISCORD_TOKEN);
