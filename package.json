@@ -1,12 +1,12 @@
 {
-  "name": "discord-tracker",
+  "name": "discord-stats-tracker",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
   },
-  "author": "",
+  "author": "Olaf 'dtim' Golubski",
   "license": "ISC",
   "dependencies": {
     "discord.js": "^13.1.0",
